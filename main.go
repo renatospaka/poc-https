@@ -9,10 +9,12 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
+	"io"
 	"math/big"
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"time"
 )
 
@@ -24,10 +26,38 @@ func main() {
 	}
 
 	// configura o http.Server para usar o certificado auto-assinado (CA)
-	server := httptest.NewUnstartedServer(helloWorld)
+	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "success!")
+		return
+	}))
 	server.TLS = serverTLSConf
 	server.StartTLS()
 	defer server.Close()
+
+	// comunicando com o servidor usando um http.Client configurado para confiar no CA
+	transport := &http.Transport{
+		TLSClientConfig: clientTLSConf,
+	}
+	http := http.Client{
+		Transport: transport,
+	}
+
+	resp, err := http.Get(server.URL)
+	if err != nil {
+		panic(err)
+	}
+
+	// abre a resposta
+	respBodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		panic(err)
+	}
+	body := strings.TrimSpace(string(respBodyBytes[:]))
+	if body == "success!" {
+		fmt.Println(body)
+	} else {
+		fmt.Println("not successful!")
+	}
 }
 
 // Inicializa todos as chaves e certificados necessários
@@ -139,4 +169,5 @@ func certsetup() (serverTLSConf *tls.Config, clientTLSConf *tls.Config, err erro
 
 func helloWorld(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "success!")
+	return
 }
