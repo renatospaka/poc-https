@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -32,9 +33,18 @@ func main() {
 
 	// testa usando httptest
 	usingHttptest(serverTLSConf, clientTLSConf)
+
+	// testa abrindo uma conexão https, chamando uma rota padrão
+	usingHttpServer(serverTLSConf)
+}
+
+func helloWorld(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "Hello World!")
 }
 
 func usingHttptest(serverTLSConf, clientTLSConf *tls.Config) {
+	return
+
 	// configura o http.Server para usar o certificado auto-assinado (CA)
 	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "success!")
@@ -64,8 +74,22 @@ func usingHttptest(serverTLSConf, clientTLSConf *tls.Config) {
 	}
 	body := strings.TrimSpace(string(respBodyBytes[:]))
 	if body == "success!" {
-		fmt.Println(body)
+		log.Println(body)
 	} else {
-		fmt.Println("not successful!")
+		log.Println("not successful!")
 	}
+}
+
+func usingHttpServer(serverTLSConf *tls.Config) {
+	http.HandleFunc("/", helloWorld)
+
+	porta := 9000
+	server := &http.Server{
+		Addr:      fmt.Sprintf(":%d", porta),
+		Handler:   nil,
+		TLSConfig: serverTLSConf,
+	}
+
+	log.Printf("servindo na porta local :%d\n", porta)
+	log.Fatal(server.ListenAndServeTLS("", ""))
 }
