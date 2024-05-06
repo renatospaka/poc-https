@@ -24,7 +24,10 @@ func main() {
 	}
 
 	// configura o http.Server para usar o certificado auto-assinado (CA)
-	server := httptest.NewUnstartedServer(http.HandleFunc(helloWorld))
+	server := httptest.NewUnstartedServer(helloWorld)
+	server.TLS = serverTLSConf
+	server.StartTLS()
+	defer server.Close()
 }
 
 // Inicializa todos as chaves e certificados necessários
@@ -134,6 +137,6 @@ func certsetup() (serverTLSConf *tls.Config, clientTLSConf *tls.Config, err erro
 	return
 }
 
-func helloWorld(w. http.http.ResponseWriter, r *http.Request) {
+func helloWorld(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "success!")
 }
