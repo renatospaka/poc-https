@@ -8,8 +8,11 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"fmt"
 	"math/big"
 	"net"
+	"net/http"
+	"net/http/httptest"
 	"time"
 )
 
@@ -19,8 +22,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	// configura o http.Server para usar o certificado auto-assinado (CA)
+	server := httptest.NewUnstartedServer(http.HandleFunc(helloWorld))
 }
 
+// Inicializa todos as chaves e certificados necessários
 func certsetup() (serverTLSConf *tls.Config, clientTLSConf *tls.Config, err error) {
 	// configuração do certificador CA
 	ca := &x509.Certificate{
@@ -125,4 +132,8 @@ func certsetup() (serverTLSConf *tls.Config, clientTLSConf *tls.Config, err erro
 		RootCAs: certPool,
 	}
 	return
+}
+
+func helloWorld(w. http.http.ResponseWriter, r *http.Request) {
+	fmt.Fprint(w, "success!")
 }
