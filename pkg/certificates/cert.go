@@ -93,3 +93,19 @@ func (s *SelfSigned) SetupCert() error {
 	s.cert = c
 	return nil
 }
+
+func (s *SelfSigned) LoadCert(certPath, keyPath string) error {
+	serverCert, err := tls.LoadX509KeyPair(certPath, keyPath)
+	if err != nil {
+		return errors.Join(ErrCertificadoInvalidPath, err)
+	}
+
+	err = s.SetupServerTLSConfig(serverCert)
+	if err != nil {
+		s.cert = nil
+		return err
+	}
+
+	s.cert.tlsCertificate = serverCert
+	return nil
+}

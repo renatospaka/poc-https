@@ -10,4 +10,5 @@ var (
 	ErrCertificadoCert             = errors.New("erro ao gerar o certificado")
 	ErrCertificadoCertInvalido     = errors.New("certificado inválido ou inexistente")
 	ErrCertificadoNotPaired        = errors.New("erro ao parear o CA com o certificado")
+	ErrCertificadoInvalidPath      = errors.New("caminho para o arquivo <certificado>.pem e <chave>.pem é inválido")
 )
