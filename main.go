@@ -119,7 +119,7 @@ func certsetup() (serverTLSConf *tls.Config, clientTLSConf *tls.Config, err erro
 
 	// retorna as configurações TLS do servidor e do cliente
 	serverTLSConf = c.ConfigTLSServer()
-	clientTLSConf = c.ConfigTLSServer()
+	clientTLSConf = c.ConfigTLSClient()
 
 	// // configuração do certificado do Servidor
 	// cert := &x509.Certificate{
